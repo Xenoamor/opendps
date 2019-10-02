@@ -36,16 +36,16 @@
 static uint32_t i_out, v_out, i_limit, v_limit;
 static bool v_out_enabled;
 
-float a_adc_k_coef = A_ADC_K;
-float a_adc_c_coef = A_ADC_C;
-float a_dac_k_coef = A_DAC_K;
-float a_dac_c_coef = A_DAC_C;
-float v_adc_k_coef = V_ADC_K;
-float v_adc_c_coef = V_ADC_C;
-float v_dac_k_coef = V_DAC_K;
-float v_dac_c_coef = V_DAC_C;
-float vin_adc_k_coef = VIN_ADC_K;
-float vin_adc_c_coef = VIN_ADC_C;
+fixedp a_adc_k_coef = A_ADC_K;
+fixedp a_adc_c_coef = A_ADC_C;
+fixedp a_dac_k_coef = A_DAC_K;
+fixedp a_dac_c_coef = A_DAC_C;
+fixedp v_adc_k_coef = V_ADC_K;
+fixedp v_adc_c_coef = V_ADC_C;
+fixedp v_dac_k_coef = V_DAC_K;
+fixedp v_dac_c_coef = V_DAC_C;
+fixedp vin_adc_k_coef = VIN_ADC_K;
+fixedp vin_adc_c_coef = VIN_ADC_C;
 
 /** not static as it is referred to from hw.c for performance reasons */
 uint32_t pwrctl_i_limit_raw;
@@ -74,25 +74,25 @@ void pwrctl_init(past_t *past)
 
     /** Load any calibration constants that maybe stored in non-volatile memory (past) */
     if (past_read_unit(past, past_A_ADC_K, (const void**) &p, &length))
-        a_adc_k_coef = *p;
+        a_adc_k_coef = float2q(*p);
     if (past_read_unit(past, past_A_ADC_C, (const void**) &p, &length))
-        a_adc_c_coef = *p;
+        a_adc_c_coef = float2q(*p);
     if (past_read_unit(past, past_A_DAC_K, (const void**) &p, &length))
-        a_dac_k_coef = *p;
+        a_dac_k_coef = float2q(*p);
     if (past_read_unit(past, past_A_DAC_C, (const void**) &p, &length))
-        a_dac_c_coef = *p;
+        a_dac_c_coef = float2q(*p);
     if (past_read_unit(past, past_V_ADC_K, (const void**) &p, &length))
-        v_adc_k_coef = *p;
+        v_adc_k_coef = float2q(*p);
     if (past_read_unit(past, past_V_ADC_C, (const void**) &p, &length))
-        v_adc_c_coef = *p;
+        v_adc_c_coef = float2q(*p);
     if (past_read_unit(past, past_V_DAC_K, (const void**) &p, &length))
-        v_dac_k_coef = *p;
+        v_dac_k_coef = float2q(*p);
     if (past_read_unit(past, past_V_DAC_C, (const void**) &p, &length))
-        v_dac_c_coef = *p;
+        v_dac_c_coef = float2q(*p);
     if (past_read_unit(past, past_VIN_ADC_K, (const void**) &p, &length))
-        vin_adc_k_coef = *p;
+        vin_adc_k_coef = float2q(*p);
     if (past_read_unit(past, past_VIN_ADC_C, (const void**) &p, &length))
-        vin_adc_c_coef = *p;
+        vin_adc_c_coef = float2q(*p);
 
     pwrctl_enable_vout(false);
 }
@@ -240,11 +240,11 @@ bool pwrctl_vout_enabled(void)
   */
 uint32_t pwrctl_calc_vin(uint16_t raw)
 {
-    float value = vin_adc_k_coef * raw + vin_adc_c_coef;
+    fixedp value = qadd(qmul(vin_adc_k_coef, int2q((int32_t) raw)), vin_adc_c_coef);
     if (value <= 0)
         return 0;
-    else
-        return value + 0.5f; /** Add 0.5f to value so it is correctly rounded when it is truncated */
+
+    return q2int(value);
 }
 
 /**
@@ -254,11 +254,11 @@ uint32_t pwrctl_calc_vin(uint16_t raw)
   */
 uint32_t pwrctl_calc_vout(uint16_t raw)
 {
-    float value = v_adc_k_coef * raw + v_adc_c_coef;
+    fixedp value = qadd(qmul(v_adc_k_coef, int2q((int32_t) raw)), v_adc_c_coef);
     if (value <= 0)
         return 0;
-    else
-        return value + 0.5f; /** Add 0.5f to value so it is correctly rounded when it is truncated */
+
+    return q2int(value);
 }
 
 /**
@@ -268,13 +268,14 @@ uint32_t pwrctl_calc_vout(uint16_t raw)
   */
 uint16_t pwrctl_calc_vout_dac(uint32_t v_out_mv)
 {
-    float value = v_dac_k_coef * v_out_mv + v_dac_c_coef;
-    if (value <= 0)
+    fixedp value = qadd(qmul(v_dac_k_coef, int2q((int32_t) v_out_mv)), v_dac_c_coef);
+    uint32_t temp = q2int(value);
+    if (temp <= 0)
         return 0;
-    else if (value >= 0xfff)
+    else if (temp >= 0xfff)
         return 0xfff; /** 12 bits */
     else
-        return value + 0.5f; /** Add 0.5f to value so correct rounding is done when truncated */
+        return temp;
 }
 
 /**
@@ -284,11 +285,11 @@ uint16_t pwrctl_calc_vout_dac(uint32_t v_out_mv)
   */
 uint32_t pwrctl_calc_iout(uint16_t raw)
 {
-    float value = a_adc_k_coef * raw + a_adc_c_coef;
+    fixedp value = qadd(qmul(a_adc_k_coef, int2q((int32_t) raw)), a_adc_c_coef);
     if (value <= 0)
         return 0;
-    else
-        return value + 0.5f; /** Add 0.5f to value so correct rounding is done when truncated */
+    
+    return q2int(value);
 }
 
 /**
@@ -298,11 +299,11 @@ uint32_t pwrctl_calc_iout(uint16_t raw)
   */
 uint16_t pwrctl_calc_ilimit_adc(uint16_t i_limit_ma)
 {
-    float value = (i_limit_ma - a_adc_c_coef) / a_adc_k_coef + 1;
+    fixedp value = qdiv(qsub(int2q((int32_t) i_limit_ma), a_adc_c_coef), a_adc_k_coef);
     if (value <= 0)
         return 0;
-    else
-        return value + 0.5f; // Add 0.5 so it is correctly rounded when it is truncated
+
+    return q2int(value);
 }
 
 /**
@@ -312,11 +313,11 @@ uint16_t pwrctl_calc_ilimit_adc(uint16_t i_limit_ma)
   */
 uint16_t pwrctl_calc_vlimit_adc(uint16_t v_limit_mv)
 {
-    float value = (v_limit_mv - v_adc_c_coef) / v_adc_k_coef + 1;
+    fixedp value = qdiv(qsub(int2q((int32_t) v_limit_mv), v_adc_c_coef), v_adc_k_coef);
     if (value <= 0)
         return 0;
-    else
-        return value + 0.5f; // Add 0.5 so it is correctly rounded when it is truncated
+
+    return q2int(value);
 }
 
 /**
@@ -328,11 +329,12 @@ uint16_t pwrctl_calc_vlimit_adc(uint16_t v_limit_mv)
   */
 uint16_t pwrctl_calc_iout_dac(uint32_t i_out_ma)
 {
-    float value = a_dac_k_coef * i_out_ma + a_dac_c_coef;
-    if (value <= 0)
+    fixedp value = qadd(qmul(a_dac_k_coef, int2q((int32_t) i_out_ma)), a_dac_c_coef);
+    uint32_t temp = q2int(value);
+    if (temp <= 0)
         return 0;
-    else if (value >= 0xfff)
+    else if (temp >= 0xfff)
         return 0xfff; /** 12 bits */
     else
-        return value + 0.5f; /** Add 0.5f to value so correct rounding is done when truncated */
+        return temp;
 }

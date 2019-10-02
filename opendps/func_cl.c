@@ -329,7 +329,7 @@ static void cl_tick(void)
     /** Continously update max voltage output value
       * Max output voltage = Vin / VIN_VOUT_RATIO
       * Add 0.5f to ensure correct rounding when truncated */
-    cl_voltage.max = (float) pwrctl_calc_vin(v_in_raw) / VIN_VOUT_RATIO + 0.5f;
+    cl_voltage.max = q2int(qdiv(int2q(pwrctl_calc_vin(v_in_raw)), VIN_VOUT_RATIO));
     if (pwrctl_vout_enabled()) {
 
         int32_t vout_actual = pwrctl_calc_vout(v_out_raw);

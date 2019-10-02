@@ -40,6 +40,7 @@
 #include "bootcom.h"
 #include "uframe.h"
 #include "opendps.h"
+#include "qmath.h"
 
 #ifdef DPS_EMULATOR
  extern void dps_emul_send_frame(uint8_t *frame, uint32_t length);
@@ -385,16 +386,16 @@ static command_status_t handle_cal_report(void)
     PACK16(i_out_raw);
     PACK16(DAC_DHR12R2);
     PACK16(DAC_DHR12R1);
-    PACKFLOAT(a_adc_k_coef);
-    PACKFLOAT(a_adc_c_coef);
-    PACKFLOAT(a_dac_k_coef);
-    PACKFLOAT(a_dac_c_coef);
-    PACKFLOAT(v_adc_k_coef);
-    PACKFLOAT(v_adc_c_coef);
-    PACKFLOAT(v_dac_k_coef);
-    PACKFLOAT(v_dac_c_coef);
-    PACKFLOAT(vin_adc_k_coef);
-    PACKFLOAT(vin_adc_c_coef);
+    PACKFLOAT(q2float(a_adc_k_coef));
+    PACKFLOAT(q2float(a_adc_c_coef));
+    PACKFLOAT(q2float(a_dac_k_coef));
+    PACKFLOAT(q2float(a_dac_c_coef));
+    PACKFLOAT(q2float(v_adc_k_coef));
+    PACKFLOAT(q2float(v_adc_c_coef));
+    PACKFLOAT(q2float(v_dac_k_coef));
+    PACKFLOAT(q2float(v_dac_c_coef));
+    PACKFLOAT(q2float(vin_adc_k_coef));
+    PACKFLOAT(q2float(vin_adc_c_coef));
     FINISH_FRAME();
     send_frame(_buffer, _length);
     return cmd_success_but_i_actually_sent_my_own_status_thank_you_very_much;

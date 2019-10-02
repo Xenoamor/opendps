@@ -936,6 +936,8 @@ static void event_handler(void)
     }
 }
 
+double __muldf3 (double a, double b) {return 0.0f;}
+
 /**
   * @brief Ye olde main
   * @retval preferably none

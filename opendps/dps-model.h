@@ -47,61 +47,61 @@
   #define CONFIG_DPS_MAX_CURRENT (15000) // Please note that the UI currently does not handle settings larger that 9.99A
  #endif
  #define ADC_CHA_IOUT_GOLDEN_VALUE  (59)
- #define A_ADC_K (float)6.8403f
- #define A_ADC_C (float)-394.06f
- #define A_DAC_K (float)0.166666f
- #define A_DAC_C (float)261.6666f
- #define V_ADC_K (float)13.012f
- #define V_ADC_C (float)-125.732f
- #define V_DAC_K (float)0.072266f
- #define V_DAC_C (float)4.444777f
+ #define A_ADC_K (fixedp)float2q(6.8403f)
+ #define A_ADC_C (fixedp)float2q(-394.06f)
+ #define A_DAC_K (fixedp)float2q(0.166666f)
+ #define A_DAC_C (fixedp)float2q(261.6666f)
+ #define V_ADC_K (fixedp)float2q(13.012f)
+ #define V_ADC_C (fixedp)float2q(-125.732f)
+ #define V_DAC_K (fixedp)float2q(0.072266f)
+ #define V_DAC_C (fixedp)float2q(4.444777f)
 #elif defined(DPS5005)
  #ifndef CONFIG_DPS_MAX_CURRENT
   #define CONFIG_DPS_MAX_CURRENT (5000)
  #endif
  #define ADC_CHA_IOUT_GOLDEN_VALUE  (0x45)
- #define A_ADC_K (float)1.713f
- #define A_ADC_C (float)-118.51f
- #define A_DAC_K (float)0.652f
- #define A_DAC_C (float)288.611f
- #define V_DAC_K (float)0.072f
- #define V_DAC_C (float)1.85f
- #define V_ADC_K (float)13.164f
- #define V_ADC_C (float)-100.751f
+ #define A_ADC_K (fixedp)float2q(1.713f)
+ #define A_ADC_C (fixedp)float2q(-118.51f)
+ #define A_DAC_K (fixedp)float2q(0.652f)
+ #define A_DAC_C (fixedp)float2q(288.611f)
+ #define V_DAC_K (fixedp)float2q(0.072f)
+ #define V_DAC_C (fixedp)float2q(1.85f)
+ #define V_ADC_K (fixedp)float2q(13.164f)
+ #define V_ADC_C (fixedp)float2q(-100.751f)
 #elif defined(DP50V5A)
  #ifndef CONFIG_DPS_MAX_CURRENT
   #define CONFIG_DPS_MAX_CURRENT (5000)
  #endif
  #define ADC_CHA_IOUT_GOLDEN_VALUE  (0x45)
- #define A_DAC_K (float)0.6402f
- #define A_DAC_C (float)299.5518f
- #define A_ADC_K (float)1.74096f
- #define A_ADC_C (float)-121.3943805f
- #define V_DAC_K (float)0.07544f
- #define V_DAC_C (float)2.1563f
- #define V_ADC_K (float)13.253f
- #define V_ADC_C (float)-103.105f
+ #define A_DAC_K (fixedp)float2q(0.6402f)
+ #define A_DAC_C (fixedp)float2q(299.5518f)
+ #define A_ADC_K (fixedp)float2q(1.74096f)
+ #define A_ADC_C (fixedp)float2q(-121.3943805f)
+ #define V_DAC_K (fixedp)float2q(0.07544f)
+ #define V_DAC_C (fixedp)float2q(2.1563f)
+ #define V_ADC_K (fixedp)float2q(13.253f)
+ #define V_ADC_C (fixedp)float2q(-103.105f)
 #elif defined(DPS3005)
  #ifndef CONFIG_DPS_MAX_CURRENT
   #define CONFIG_DPS_MAX_CURRENT (5000)
  #endif
  #define ADC_CHA_IOUT_GOLDEN_VALUE  (0x00)
- #define A_ADC_K (float)1.751f
- #define A_ADC_C (float)-1.101f
- #define A_DAC_K (float)0.653f
- #define A_DAC_C (float)262.5f
- #define V_DAC_K (float)0.0761f
- #define V_DAC_C (float)2.2857f
- #define V_ADC_K (float)13.131f
- #define V_ADC_C (float)-111.9f
+ #define A_ADC_K (fixedp)float2q(1.751f)
+ #define A_ADC_C (fixedp)float2q(-1.101f)
+ #define A_DAC_K (fixedp)float2q(0.653f)
+ #define A_DAC_C (fixedp)float2q(262.5f)
+ #define V_DAC_K (fixedp)float2q(0.0761f)
+ #define V_DAC_C (fixedp)float2q(2.2857f)
+ #define V_ADC_K (fixedp)float2q(13.131f)
+ #define V_ADC_C (fixedp)float2q(-111.9f)
 #else
  #error "Please set MODEL to the device you want to build for"
 #endif // MODEL
 
 /** These are constant across all models currently but may require tuning for each model */
-#define VIN_ADC_K (float)16.746f
-#define VIN_ADC_C (float)64.112f
+#define VIN_ADC_K (fixedp)float2q(16.746f)
+#define VIN_ADC_C (fixedp)float2q(64.112f)
 
-#define VIN_VOUT_RATIO (float)1.1f /** (Vin / VIN_VOUT_RATIO) = Max Vout */
+#define VIN_VOUT_RATIO (fixedp)float2q(1.1f) /** (Vin / VIN_VOUT_RATIO) = Max Vout */
 
 #endif // __DPS_MODEL_H__

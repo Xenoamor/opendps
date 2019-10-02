@@ -298,7 +298,7 @@ static void cc_tick(void)
     /** Continously update max voltage output value
       * Max output voltage = Vin / VIN_VOUT_RATIO
       * Add 0.5f to ensure correct rounding when truncated */
-    cc_voltage.max = (float) pwrctl_calc_vin(v_in_raw) / VIN_VOUT_RATIO + 0.5f;
+    cc_voltage.max = q2int(qdiv(int2q(pwrctl_calc_vin(v_in_raw)), VIN_VOUT_RATIO));
     if (pwrctl_vout_enabled()) {
         if (cc_voltage.ui.has_focus) {
             /** If the voltage setting has focus, make sure we're displaying

@@ -88,6 +88,7 @@ OBJS = \
     ringbuf.o \
     ili9163c.o \
     mini-printf.o \
+    qmath.o \
     gfx_lookup.o \
     font-full_small.o \
     font-meter_small.o \

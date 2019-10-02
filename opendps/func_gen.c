@@ -543,7 +543,7 @@ static void func_gen_tick(void)
     /** Continously update max voltage output value
       * Max output voltage = Vin / VIN_VOUT_RATIO
       * Add 0.5f to ensure correct rounding when truncated */
-    gen_voltage.max = (float) pwrctl_calc_vin(v_in_raw) / VIN_VOUT_RATIO + 0.5f;
+    gen_voltage.max = q2int(qdiv(int2q(pwrctl_calc_vin(v_in_raw)), VIN_VOUT_RATIO));
  //   if (gen_voltage.value > gen_voltage.max) 
  //       gen_voltage.value = gen_voltage.max;
 }
